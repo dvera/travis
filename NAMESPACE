@@ -1,0 +1,10 @@
+exportPattern("^[[:alpha:]]+")
+
+import(conifur)
+import(gyro)
+import(converge)
+import(parallel)
+import(gtools)
+import(tools)
+import(gplots)
+import(readr)

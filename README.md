@@ -1,7 +1,6 @@
 # travis
 
-**R** **U**tilities for **B**ed and **BE**dg**R**aphs
-
+**T**ools in **R** for the **A**nalysis and **V**isualization of **I**ntervals and **S**cores
 ---
 
 ## Overview

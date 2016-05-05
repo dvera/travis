@@ -1,0 +1,493 @@
+dge.log2 <- function( counts , )
+
+
+
+
+# adjust P-values
+ett$QValue=p.adjust(ett$PValue,method="fdr")
+
+
+# find differentially-expressed genes
+deg=which(ett$QValue<=qval)
+upreg=which(ett$QValue<=0.05 & ett$logFC>0)
+doreg=which(ett$QValue<=0.05 & ett$logFC<0)
+upreg2=which(ett$QValue>0.05 & ett$QValue <= 0.1 & ett$logFC>0)
+doreg2=which(ett$QValue>0.05 & ett$QValue <= 0.1 & ett$logFC<0)
+numupreg<-length(upreg)
+numdoreg<-length(doreg)
+
+
+# assign colors based on status
+ett$nlp=-log10(ett$PValue)
+ett$color="black"
+ett$color[upreg]="green"
+ett$color[doreg]="red"
+ett$color[upreg2]="darkgreen"
+ett$color[doreg2]="darkred"
+
+
+
+write.tsv(data.frame(row.names(ett)[upreg]),file=paste0(compstring,"/",compstring,"_q5_upreg.txt"))
+write.tsv(data.frame(row.names(ett)[c(upreg,upreg2)]),file=paste0(compstring,"/",compstring,"_q10_upreg.txt"))
+write.tsv(data.frame(row.names(ett)[doreg]),file=paste0(compstring,"/",compstring,"_q5_downreg.txt"))
+write.tsv(data.frame(row.names(ett)[c(doreg,doreg2)]),file=paste0(compstring,"/",compstring,"_q10_downreg.txt"))
+
+
+
+
+write.tsv(data.frame(row.names(ett)[upreg]),file=paste0(compstring,"/",compstring,"_q5_upreg.txt"))
+write.tsv(data.frame(row.names(ett)[c(upreg,upreg2)]),file=paste0(compstring,"/",compstring,"_q10_upreg.txt"))
+write.tsv(data.frame(row.names(ett)[doreg]),file=paste0(compstring,"/",compstring,"_q5_downreg.txt"))
+write.tsv(data.frame(row.names(ett)[c(doreg,doreg2)]),file=paste0(compstring,"/",compstring,"_q10_downreg.txt"))
+
+
+
+for(i in 1:numlists){
+  #subres <- ett[generows[[i]],]
+  subcnts <- cnts[generows[[i]],]
+  subrpkms <- rpkms[generows[[i]],]
+  sublogrpkms <- logrpkms[generows[[i]],]
+  sublog1cnts <- log1cnts[generows[[i]],]
+
+  barplot(
+    #log1cnts[,which(colnames(cnts)==eg[g,1])],
+    log2(rowMeans(as.data.frame(subcnts[,which(grp==eg[g,2])]))/rowMeans(as.data.frame(subcnts[,which(grp==eg[g,1])]))),
+    #log1cnts[,which(colnames(cnts)==eg[g,2])],
+    main=genelists[[i]],
+    col=ett$color,
+    names=rownames(subcnts),
+    las=3
+    #pch=20,
+    #xlab="log2(mean of counts)",
+    #ylab="log2(ratio of counts)"
+  )
+
+}
+
+
+
+
+
+
+
+  # pairs(log2(1+cnts),pch=".")
+
+
+
+
+  # if(!is.null(genelists)){
+  #   numlists <- length(genelists)
+  #   lists <- mclapply( genelists, read_tsv, col_names=FALSE , mc.cores=cores)
+  #   genes <- lapply(1:numlists,function(x){
+  #
+  #     if(ncol(lists[[x]])>2){
+  #       unique(sort(lists[[x]][ which(grepl("HUMAN|",lists[[x]][,11] ) ),3]))
+  #     } else{
+  #       unique(unlist(as.vector(lists[[x]])))
+  #     }
+  #
+  #   })
+  #   generows <- lapply(1:numlists, function(x){
+  #     which(toupper(row.names(cnts)) %in% toupper(genes[[x]]))
+  #   })
+
+
+
+
+    #dir.create(outdir)
+    #finaltable[which(finaltable[,7]>colorscale[2]),7] <- colorscale[2]
+    #finaltable[which(finaltable[,8]>colorscale[2]),8] <- colorscale[2]
+
+
+
+    # for(i in 1:numlists){
+    #   #subres <- ett[generows[[i]],]
+    #   subcnts <- cnts[generows[[i]],]
+    #   subrpkms <- rpkms[generows[[i]],]
+    #   sublogrpkms <- logrpkms[generows[[i]],]
+    #   sublog1cnts <- log1cnts[generows[[i]],]
+    #
+    #   barplot(
+    #     #log1cnts[,which(colnames(cnts)==eg[g,1])],
+    #     log2(rowMeans(as.data.frame(subcnts[,which(grp==eg[g,2])]))/rowMeans(as.data.frame(subcnts[,which(grp==eg[g,1])]))),
+    #     #log1cnts[,which(colnames(cnts)==eg[g,2])],
+    #     main=genelists[[i]],
+    #     col=ett$color,
+    #     names=rownames(subcnts),
+    #     las=3
+    #     #pch=20,
+    #     #xlab="log2(mean of counts)",
+    #     #ylab="log2(ratio of counts)"
+    #   )
+    #
+    # }
+
+
+
+
+    # reduce object to df
+    # if(!identical(row.names(ett),row.names(cnts))){stop("problem making stat and count tables identical")}
+    # if(!identical(row.names(ett),row.names(rpkms))){stop("problem making stat and count tables identical")}
+
+
+
+
+
+
+
+
+
+    ##############################################################################
+    ############################# plot some stuff ################################
+    ##############################################################################
+
+    pdf(file=paste0(compstring,"_plots.pdf"))
+
+    # plotSmear(et, de.tags=detags)
+
+    plot(
+      #log1cnts[,which(colnames(cnts)==eg[g,1])],
+      rowMeans(as.data.frame(log1cnts[,which(grp==eg[g,1])])),
+      rowMeans(as.data.frame(log1cnts[,which(grp==eg[g,2])])),
+      #log1cnts[,which(colnames(cnts)==eg[g,2])],
+      col=ett$color,
+      pch=20,
+      xlab="log2(mean of counts)",
+      ylab="log2(ratio of counts)"
+    )
+    legend("bottomright",cex=0.7,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3 )
+
+    # plot MA
+    maxlog2=max(abs(ett$logFC))
+    maxlog=max(log1cnts)
+
+    # par(mfrow=c(4,1))
+    plot(
+      ett$logCPM,
+      ett$logFC,
+      ylim=c(-maxlog2,maxlog2),
+      col=ett$color,
+      pch=20,
+      xlab="log2(mean of counts)",
+      ylab="log2(ratio of counts)"
+    )
+
+    legend("topright",cex=0.5,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3)
+    # plot(log2(1+(rowMeans(rlogMat))),20*rlog2,ylim=c(-10,10),xlim=c(0,5),col=ett$color,pch=20,xlab="log(mean of counts)",ylab="rlog2(ratio of counts)")
+    # legend("topleft",cex=0.7,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3 )
+    #
+    # plot p-value histogram
+    hist(ett$PValue,breaks=100)
+    hist(ett$QValue,breaks=100)
+    # plot volcano
+    plot(ett$logFC,-log10(ett$QValue),col=ett$color,pch=20,xlim=c(-maxlog2,maxlog2))
+    abline(h=-log10(qval),col="grey50")
+    d=(density(ett$logFC))
+    dx=d$x
+    dy=d$y
+    dy=dy*(max(-log10(ett$PValue))/max(dy))/2
+    lines(dx,dy,col="grey50")
+
+    # par(mfrow=c(1,1))
+
+
+
+
+
+
+    if(!is.null(genelists)){
+
+      for(i in 1:numlists){
+        subres <- ett[generows[[i]],]
+        subcnts <- cnts[generows[[i]],]
+        subrpkms <- rpkms[generows[[i]],]
+        sublogrpkms <- logrpkms[generows[[i]],]
+        sublog1cnts <- log1cnts[generows[[i]],]
+
+        pvalorder <- order(subres$QValue)
+        log2order <- order(subres$logFC)
+
+        barplot(subres$logFC[log2order], names=row.names(subres)[log2order], col=subres$color[log2order], cex.names=0.7, las=1, horiz=T, main=paste(compstring,basename(genelists[i])) )
+
+        abline(v=0)
+        abline(h=1:1000,col=rgb(0,0,0,20,maxColorValue=255))
+        legend("topleft",legend=c("upregulated at q < 0.05","upregulated at q < 0.1","downregulated at q < 0.05","downregulated at q < 0.1"),col=c("green","darkgreen","red","darkred"),lwd=5, cex=0.5)
+
+
+        barplot(
+          #log1cnts[,which(colnames(cnts)==eg[g,1])],
+          log2(rowMeans(as.data.frame(subcnts[,which(grp==eg[g,2])]))/rowMeans(as.data.frame(subcnts[,which(grp==eg[g,1])]))),
+          #log1cnts[,which(colnames(cnts)==eg[g,2])],
+          col=ett$color,
+          #pch=20,
+          #xlab="log2(mean of counts)",
+          #ylab="log2(ratio of counts)"
+        )
+
+        barplot(
+          #log1cnts[,which(colnames(cnts)==eg[g,1])],
+          log2(rowMeans(as.data.frame(subcnts[,which(grp==eg[g,2])]))/rowMeans(as.data.frame(subcnts[,which(grp==eg[g,1])]))),
+          #log1cnts[,which(colnames(cnts)==eg[g,2])],
+          col=ett$color,
+          #pch=20,
+          #xlab="log2(mean of counts)",
+          #ylab="log2(ratio of counts)"
+        )
+
+
+
+      }
+
+
+
+      for(i in 1:numlists){
+        subcnts <- cnts[generows[[i]],]
+        subrpkms <- rpkms[generows[[i]],]
+        sublogrpkms <- logrpkms[generows[[i]],]
+        #heatmap.2(sublogrpkms[order((sublogrpkms[,4])),c(4,1,2,3)],trace="none",Rowv=FALSE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+        heatmap.2(sublogrpkms[order(sublogrpkms[,4]),c(4,1,2,3,8,5,6,7)],trace="none",Rowv=FALSE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+        #heatmap.2(sublogrpkms[order(sublogrpkms[,4]),c(4,1,2)],trace="none",Rowv=FALSE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+
+        #heatmap.2(sublogrpkms[,c(8,5,6)],trace="none",Rowv=TRUE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+
+        #heatmap.2(sublogrpkms[,c(4,1,2)],trace="none",Rowv=TRUE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+
+
+      }
+
+      for(i in 1:numlists){
+        subcnts <- cnts[generows[[i]],]
+        subrpkms <- rpkms[generows[[i]],]
+        sublogrpkms <- logrpkms[generows[[i]],]
+
+        heatmap.2(sublogrpkms[,c(2,6,3,7)],trace="none",Rowv=TRUE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+        heatmap.2(sublogrpkms[,c(2,3,6,7)],trace="none",Rowv=TRUE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+        heatmap.2(sublogrpkms[order(sublogrpkms[,2]),c(2,6,3,7)],trace="none",Rowv=FALSE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+        heatmap.2(sublogrpkms[order(sublogrpkms[,2]),c(2,3,6,7)],trace="none",Rowv=FALSE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+
+        #heatmap.2(sublogrpkms[,c(4,1,2)],trace="none",Rowv=TRUE,Colv=FALSE,col=colorRampPalette(c("black","blue","cyan")),main=basename(genelists[i]) )
+
+
+      }
+    }
+
+
+    if(!is.null(goids)){
+      for(i in 1:length(goids)){
+        gtable<-read.delim(pipe(paste0("curl -s 'http://www.ebi.ac.uk/QuickGO/GAnnotation?tax=9606&relType=IP&goid=%20",i,"%20&format=tsv'")),header=TRUE,stringsAsFactors=FALSE)
+        gtable<-ddply(gtable,.(Symbol),summarise,evidence=paste(unique(Evidence),collapse=","))
+
+        subres <- ett[which(row.names(ett) %in% gtable[,1]),]
+        subcts <- log1cnts[which(row.names(ett) %in% gtable[,1]),]
+        pvalorder <- order(subres$QValue)
+        log2order <- order(subres$logFC)
+
+        barplot(
+          subres$logFC[log2order],
+          names=row.names(subres)[log2order],
+          col=subres$color[log2order],
+          cex.names=0.7,
+          las=1,
+          horiz=T,
+          main=paste(compstring)
+        )
+        abline(v=0)
+        mtext(text=goids[i],cex=0.65,line=3)
+        barplot(
+          subres$nlp[log2order],
+          names=row.names(subres)[log2order],
+          col=subres$color[log2order],
+          cex.names=0.7,
+          las=1,
+          horiz=T,
+          main=paste(compstring,goids[i])
+        )
+        abline(v=-log10(c(0.05,0.1)),col="grey60")
+        image(t(subcts),axes=F)
+      }
+    }
+
+    # pdf(file="keggHeatmaps.pdf",width=20,height=20)
+    # ett$entrez = as.numeric(pathview::id2eg(row.names(ett), category ="symbol",org=entrezOrganism)[,2])
+    #
+    # kps=read.delim(pipe(paste0("wget -O- http://rest.kegg.jp/list/pathway/",organism)),stringsAsFactors=FALSE,header=F)
+    # kps[,2]=remove.suffix(kps[,2]," - ")
+    # kps[,1]=remove.prefix(kps[,1],"path:")
+    #
+    # for(k in 1:nrow(kps)){
+    #   gids=as.numeric(remove.prefix(read.table(paste0("http://rest.kegg.jp/link/genes/",kps[k,1]),header=F,stringsAsFactors=FALSE)[,2],":"))
+    #   gene2entrez = which(as.numeric(ett$entrez) %in% gids)
+    #   subett = ett[gene2entrez,]
+    #   sublog1cnts = log1cnts[gene2entrez,]
+    #   subett = subett[order(subett$logFC,decreasing=TRUE),]
+    #   sublog1cnts = sublog1cnts[order(subett$logFC,decreasing=TRUE),]
+    #   if(nrow(subett)>1 & nrow(subett) < 500){
+    #     barplot( subett$logFC , names=row.names(subett) , las=3 , col=subett$color , main=kps[k,2], ylab=paste0("log2(",compstring,")") )
+    #     legend("topright",legend=c("upregulated at q < 0.05","upregulated at q < 0.1","downregulated at q < 0.05","downregulated at q < 0.1"),col=c("green","darkgreen","red","darkred"),lwd=5)
+    #     abline(h=0)
+    #     points((1:nrow(subett)*1.2)-0.5 , -log10(subett$QValue) ,col="orange",pch=20)
+    #     abline(v=(1:nrow(subett)*1.2)-0.5 , col=rgb(0,0,0,20,maxColorValue=255) )
+    #     heatmap.2(data.matrix(sublog1cnts),trace="none",col=colorRampPalette(c("black","yellow")),main=kps[k,2])
+    #   }
+    #
+    # }
+
+    if(!is.null(pathways)){
+
+      ett$entrez=pathview::id2eg(row.names(ett), category ="symbol",org=entrezOrganism)[,2]
+      if(length(pathways)==1 & pathways[1]=="all"){
+        dbnames=keggList("pathway",organism)
+        dbid=unlist(lapply(strsplit(names(dbnames),organism),"[",2))
+      } else{
+        if(any(grepl(organism,pathways))){
+          # dbnames=unlist(lapply(keggGet(as.character(pathways)),"[",2))
+          dbnames=pathways
+          dbid=gsub(organism,"",pathways)
+        } else{
+          #dbnames=unlist(lapply(keggGet(paste0(organism,pathways)),"[",2))
+          dbnames=pathways
+          dbid=pathways
+        }
+      }
+
+
+
+      numdbs=length(dbnames)
+      dbshortnames=unlist(lapply(strsplit(dbnames," - "),"[",1))
+      dbshortnames=gsub(" ","",  dbshortnames)
+      dbshortnames=gsub(")","",  dbshortnames)
+      dbshortnames=gsub("\\(","",dbshortnames)
+      dbshortnames=gsub("/","",  dbshortnames)
+      dbshortnames=gsub("'","",  dbshortnames)
+
+
+
+
+
+      vals=data.matrix(ett[,c(1)])
+      row.names(vals)<-ett$entrez
+      # pathway enrichment analysis
+      # cnts.kegg.p<-gage(log2(8+vals[,1:2]),gsets=kegg.gs,ref=1,samp=2,compare="unpaired")
+      # o <- lapply(lapply(cnts.kegg.p,row.names),order)
+      # cnts.kegg.p[[1]]<-cnts.kegg.p[[1]][o[[1]],]
+      # cnts.kegg.p[[2]]<-cnts.kegg.p[[2]][o[[2]],]
+      # cnts.kegg.p[[3]]<-cnts.kegg.p[[3]][o[[3]],]
+      #
+      # colnames(cnts.kegg.p[[1]])<-paste0( "greater_", colnames(cnts.kegg.p[[1]]))
+      # colnames(cnts.kegg.p[[2]])<-paste0( "less_",    colnames(cnts.kegg.p[[2]]))
+      # colnames(cnts.kegg.p[[3]])<-paste0( "stats_",   colnames(cnts.kegg.p[[3]]))
+      #
+      # rn <- lapply(cnts.kegg.p,row.names)
+      # if(!identical(rn[[1]],rn[[2]]) | !identical(rn[[1]],rn[[3]])){stop("differing number of gene sets")}
+      # go=do.call(cbind,cnts.kegg.p)
+      # #write.tsv(go,file=paste0(dbshortnames[j],"_",names(del)[i]) )
+
+      #mclapply(1:numdbs,function(j){
+      for(j in 1:numdbs){
+        #cat(names(del)[i],": ",dbnames[j],"\n")
+        pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(compstring,"_",dbshortnames[j], "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits) )
+
+      }
+
+
+
+
+    }
+
+
+
+
+
+
+    dev.off()
+  }
+
+
+
+
+}
+
+
+  ##############################################################################
+  ########################## DESeq analysis ##  ################################
+  ##############################################################################
+
+  # colData <- data.frame(condition=factor(grouping),type="single-read")
+  # rownames(colData) <- colnames(cnts)
+  #
+  # dds = DESeqDataSetFromMatrix(countData=cnts, colData=colData, design=~condition)
+  #
+  # des = DESeq(dds)
+  # res = results(des)
+  # rld = rlog(des)
+  # vsd<-varianceStabilizingTransformation(des)
+  # rlogMat<-assay(rld)
+  # vsdMat<-assay(vsd)
+  # rlog2 = log2(rlogMat[,2]/rlogMat[,1])
+  # vsdlog2 = log2(vsdMat[,2]/vsdMat[,1])
+  #summary(res)
+  #plotMA(res)
+
+  ##############################################################################
+  ############################# edgeR analysis #################################
+  ##############################################################################
+
+  # save gene lists
+  # outdirname=paste0(prefix,"_edger")
+  # dir.create(outdirname)
+  # write.tsv(data.frame(row.names(ett)),file=paste0(outdirname,"/",prefix,"_all.txt"))
+  # write.tsv(data.frame(row.names(ett)[upreg]),file=paste0(outdirname,"/",prefix,"_qval",qval,"_dispersion",dispersion,"_upregulated.txt"))
+  # write.tsv(data.frame(row.names(ett)[doreg]),file=paste0(outdirname,"/",prefix,"_qval",qval,"_dispersion",dispersion,"_downregulated.txt"))
+  #
+  # finaltable <- data.frame(
+  #   "UT_count"=cnts[,1],
+  #   "TR_count"=cnts[,2],
+  #   "UT_rcount"=rlogMat[,1],
+  #   "TR_rcount"=rlogMat[,2],
+  #   "UT_vcount"=vsdMat[,1],
+  #   "TR_vcount"=vsdMat[,2],
+  #   "UT_logCount"=log1cnts[,1],
+  #   "TR_logCount"=log1cnts[,2],
+  #   "log2"=ett$logFC,
+  #   "logMeans"=ett$logCPM,
+  #   "pval"=ett$PValue,
+  #   "qval"=ett$QValue,
+  #   "call"=de,
+  #   row.names=row.names(ett)
+  # )
+  #
+  # return(finaltable)
+  # write.tsv(finaltable,file=paste0(outdirname,"/",prefix,"_finaltable.txt"),colnames=T,rownames=T)
+
+  ##############################################################################
+  ############################# gene group barplots ############################
+  ##############################################################################
+
+  #finaltable <- data.matrix(finaltable)
+ #heatmap.2(finaltable[genesets[[i]],c(7,8)],trace="none",col=colorRampPalette(c("black","green")),key=F,breaks=seq(colorscale[1],colorscale[2],0.2),Colv=FALSE)
+      #png(width=250,height=1280,file=paste0(basename((gsub(" ","-",genelists[i]))),"_log10.png"))
+      #par(mar=c(5,5,5,10),xpd=TRUE)
+
+
+
+      #   image(t(subtable[order(subtable[,9]),c(7,8)]),col=plotcolors(20),breaks=seq(0,4,0.2),axes=F)
+      # #text(x=1.505,y=seq(0,1,length=nrow(subtable)),labels=row.names(subtable)[order(subtable[,9])] , pos=4, cex=0.7)
+      # mtext(row.names(subtable)[order(subtable[,9])] , side=4 , at=seq(0,1,length=nrow(subtable)), cex=0.7,las=1, adj=0)
+      # mtext(c("untreated","treated") , at=c(0.25,0.75), side=1 , las=1)
+      # dev.off()
+
+
+
+      # plot scatter
+      # plot(logcnts[,1],logcnts[,2],col=ett$color,pch=20,xlab="log2(mean of counts)",ylab="log2(ratio of counts)")
+      # legend("bottomright",cex=0.7,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3 )
+      # plot scatter
+
+
+
+      # plot rlog MA
+      # plot(log2(1+(rowMeans(rlogMat))),rlog2,ylim=c(-0.5,0.5),xlim=c(0,5),col=ett$color,pch=20,xlab="log(mean of counts)",ylab="rlog2(ratio of counts)")
+      # legend("topleft",cex=0.7,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3 )
+      #
+      # plot(log2(1+(rowMeans(vsdMat))),vsdlog2,ylim=c(-0.5,0.5),xlim=c(0,5),col=ett$color,pch=20,xlab="log(mean of counts)",ylab="vsdlog2(ratio of counts)")
+      # legend("topleft",cex=0.7,legend=c(paste0("upregulated genes (",numupreg,")"), paste0("downregulated genes (",numdoreg,")") ), col=c("green","red"),lwd=3 )
