@@ -1,5 +1,5 @@
 
-deploy<-function(message="no message"){
+travisDeploy<-function(message="no message"){
 	library(travis)
 	res <- system(paste0("git -C /lustre/maize/home/dlv04c/software/r/travis/ add /lustre/maize/home/dlv04c/software/r/travis/ &&\
 	git -C /lustre/maize/home/dlv04c/software/r/travis/ commit -a -m '",message,"' &&\
