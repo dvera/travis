@@ -6,7 +6,7 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 	# make sure all files only have 4 columns
 
 	fl=filelines(bgfiles,threads=threads)
-	if(length(unique(fl))!=1){cat("WARNING: FILES HAVE UNEQUAL LINE COUNTS\n"); unequal=TRUE}
+	if(length(unique(fl))!=1){cat("WARNING: FILES HAVE UNEQUAL LINE COUNTS\n"); unequal=TRUE} else{unequal=FALSE}
 
 	numfiles<-length(bgfiles)
 	bgnames<-basename(removeext(bgfiles))
