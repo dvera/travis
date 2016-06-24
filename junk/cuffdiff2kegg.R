@@ -8,16 +8,28 @@ cuffdiff2kegg <- function( gene_exp.diff , organism="hsa" , pathways="all" , lim
   data(go.subs.hs)
   data(kegg.gs)
 
-  de=read.tsv(gene_exp.diff,header=T)
+  de=tsvRead(gene_exp.diff,col_names=T)
+  
+  # define string to represent comparison
   de$comparison=paste0(de$sample_1,"_VS_",de$sample_2)
+  
+  # convert gene symbols to entrez IDs
   de$entrez=pathview::id2eg(de$gene, category ="symbol",org=entrezOrganism)[,2]
+  
+  # ???
   de[which(de[,10]>10),10]<- (-10)
   de[which(de[,10]<(-10)),10]<- (10)
+  
+  # making binary calls for up/down regulated
   de$call=0
   de$call[which(de[,14]=="yes" & de[,10]<0)] <- (-1)
   de$call[which(de[,14]=="yes" & de[,10]>0)] <- 1
+  
+  # in cuffdiff, all comparisons are in same table, this splits the table by comparison
   del=split(de,de$comparison)
   numcomps<-length(del)
+  
+  
   # save lists of differentially expressed genes
   for(i in 1:numcomps){
     unq<-as.numeric(rownames(unique(data.frame(del[[i]]$entrez))))
@@ -31,14 +43,20 @@ cuffdiff2kegg <- function( gene_exp.diff , organism="hsa" , pathways="all" , lim
 
 
 
-  # fetch target pathways
+  # fetch target pathways, use IDs from http://www.genome.jp/kegg/pathway.html
+  
+  # if pathways is "all"
   if(length(pathways)==1 & pathways[1]=="all"){
+    # get a list of all pathways for a species
     dbnames=keggList("pathway",organism)
+    # get ID for each pathway
     dbid=unlist(lapply(strsplit(names(dbnames),organism),"[",2))
   } else{
+    # if your pathway ID is species specific
     if(any(grepl(organism,pathways))){
       # dbnames=unlist(lapply(keggGet(as.character(pathways)),"[",2))
       dbnames=pathways
+      # prefix pathway IDs with species code
       dbid=gsub(organism,"",pathways)
     } else{
       #dbnames=unlist(lapply(keggGet(paste0(organism,pathways)),"[",2))
@@ -47,7 +65,7 @@ cuffdiff2kegg <- function( gene_exp.diff , organism="hsa" , pathways="all" , lim
     }
   }
 
-
+  # count number of pathways to draw
   numdbs=length(dbnames)
 
   # format pathway names for output files
@@ -60,7 +78,7 @@ cuffdiff2kegg <- function( gene_exp.diff , organism="hsa" , pathways="all" , lim
 
   for(i in 1:numcomps){
 
-    # make a data matrix of values to preserve rownames in subsets
+    # select columns of expression values
     vals=data.matrix(del[[i]][,c(8,9,10,13,17)])
     row.names(vals)<-del[[i]]$entrez
     # pathway enrichment analysis
