@@ -1,7 +1,7 @@
-bedDivide <- function( bed,regionsize,windowsize,covbedname, flank=1000, start=2,stop=3 , meta=FALSE ){
+ bedDivide<-function( bed,regionsize,windowsize,outname, flank=1000, start=2,stop=3 , meta=FALSE ){
 
   options(scipen=99999)
-
+  covbedname=outname
   if(meta){
 
     curbed<-read_tsv(bed,col_names=FALSE)
