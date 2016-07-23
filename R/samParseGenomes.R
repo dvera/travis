@@ -23,7 +23,7 @@ samSquare <- function( samFiles , fields=c("AS","XM","XO","XG","NM") , printHead
 
 }
 
-samParseGenomes <- function( genome1sams , genome2sams , minAS=-20, minQual=20 , threads=getOption("threads",1L) , sortBuffer="1G" ){
+samParseGenomes <- function( genome1sams , genome2sams , minAS=-20, minQual=20 , threads=getOption("threads",1L) , sortBuffer="1G" , sortThreads=NULL ){
 
   # f = files("*.fastq")
   # ft = cutadapt( f )
@@ -67,6 +67,7 @@ samParseGenomes <- function( genome1sams , genome2sams , minAS=-20, minQual=20 ,
   samcounts <- matrix(samtoolsView(allsams,count=TRUE,threads=threads),nrow=numsamples)
   samcountstable <- apply(samcounts,1,table)
 
+
   if(class(samcountstable)=="integer"){
     unequal=FALSE
     cat("genome sams appear to have the same set of quieries\n")
@@ -75,11 +76,32 @@ samParseGenomes <- function( genome1sams , genome2sams , minAS=-20, minQual=20 ,
     cat("WARNING: genome1 and genome2 alignments do not appear to have the same set of queries. Including unaligned sequences and reporting only one alignment for every read will make allele parsing faster.\n")
   }
 
-  cat("sorting reads and standardizing optional flags\n")
+  if(unequal==FALSE){
+    cat("checking if sams have the same alignment order\n")
+    cmdString=paste("grep -v '^@'",allsams[g1],"| cut -f 1")
+    res1=cmdRun(cmdString,lines=T,first=100000)
+    cmdString=paste("grep -v '^@'",allsams[g2],"| cut -f 1")
+    res2=cmdRun(cmdString,lines=T,first=100000)
+
+    if(identical(unlist(res1),unlist(res2))){
+      sameorder=TRUE
+      cat("genome 1 and genome 2 sams appear to have the same alignment order\n")
+    } else{
+      sameorder=FALSE
+      cat("genome 1 and genome 2 sams do NOT have the same alignment order, sorting by read name is necessary (takes much longer). Next time, run bowtie2 wrapper with reorder=TRUE\n")
+    }
+
+  }
+
   fields=c("AS","XM","XO","XG","NM")
 
-  allsamsSorted = samSquare ( allsams , fields=fields, sortByName=T, printHeader=F, threads=threads, sortBuffer=sortBuffer )
-
+  if(!sameorder){
+    cat("sorting reads and standardizing optional flags\n")
+    allsamsSorted = samSquare ( allsams , fields=fields, sortByName=T, printHeader=F, threads=threads, sortBuffer=sortBuffer, sortThreads=sortThreads )
+  } else{
+    cat("standardizing optional flags\n")
+    allsamsSorted = samSquare ( allsams , fields=fields, sortByName=F, printHeader=F, threads=threads, sortBuffer=sortBuffer, sortThreads=sortThreads )
+  }
   nf=11+length(fields)
 
   XM1=which(fields=="XM")+11
