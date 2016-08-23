@@ -31,24 +31,25 @@ function( bgfiles, lspan=0.05, threads=getOption("threads",1L), omitY=FALSE, omi
 		lscores<-mclapply(1:numchroms,function(i){
 			cur <- all[[i]]
 
-			cur[,4] <- tryCatch(
-				{
-					loess(cur[,4]~cur[,2],span=scaledspans[i])$fitted
+			cura <- lapply(4:ncol(cur), function(k){
+				cur[,k] <- tryCatch(
+					{
+						loess(cur[,k]~cur[,2],span=scaledspans[i])$fitted
 
-				},
-				warning = function(war){
-					print(paste("warning for file",bgnames[x],"chromosome",cur[1,1],":",war))
-					out <- loess(cur[,4]~cur[,2],span=scaledspans[i])$fitted
-					return(out)
-				},
-				error = function(err){
-					print(paste("smoothing failed for file",bgnames[x],"chromosome",cur[1,1],":",err))
-					return(cur[,4])
-				}
-			)
+					},
+					warning = function(war){
+						print(paste("warning for file",bgnames[x],"chromosome",cur[1,1],":",war))
+						out <- loess(cur[,k]~cur[,2],span=scaledspans[i])$fitted
+						return(out)
+					},
+					error = function(err){
+						print(paste("smoothing failed for file",bgnames[x],"chromosome",cur[1,1],":",err))
+						return(cur[,k])
+					}
+				)
+			})
 
-
-			return(cur)
+			return(as.data.frame(cura))
 		},mc.cores=chromthreads, mc.preschedule=FALSE)
 
 		curbg<-do.call(rbind,lscores)
