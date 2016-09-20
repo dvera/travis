@@ -1,5 +1,5 @@
 bgLoess <-
-function( bgfiles, lspan=0.05, threads=getOption("threads",1L), omitY=FALSE, omitM=FALSE){
+function( bgfiles, lspan=0.05, threads=getOption("threads",1L), omitY=FALSE, omitM=FALSE, mbg=FALSE){
 
 	# assumes sorted bg
 
@@ -10,7 +10,9 @@ function( bgfiles, lspan=0.05, threads=getOption("threads",1L), omitY=FALSE, omi
 	if(chromthreads==0){chromthreads=1}
 
 	dump <- mclapply(seq_len(numbgs), function(x){
-		curbg <- read_tsv ( bgfiles[x], col_names=FALSE )
+		curbg <- read_tsv ( bgfiles[x], col_names=mbg )
+		if(mbg){columnnames=colnames(curbg)}
+
 		if(omitY){curbg=curbg[which(curbg[,1]!="chrY"),]}
 		if(omitM){curbg=curbg[which(curbg[,1]!="chrM"),]}
 
@@ -48,12 +50,16 @@ function( bgfiles, lspan=0.05, threads=getOption("threads",1L), omitY=FALSE, omi
 					}
 				)
 			})
+			cura <- as.data.frame(cura)
+			colnames(cura) <- columnnames[-(1:3)]
+			cura <- cbind(cur[,1:3],cura)
+			#print(str(cura))
 
-			return(as.data.frame(cura))
+			return(cura)
 		},mc.cores=chromthreads, mc.preschedule=FALSE)
-
+		print(str(lscores))
 		curbg<-do.call(rbind,lscores)
-		write.tsv(curbg,file=outnames[x])
+		tsvWrite(curbg,file=outnames[x],col_names=mbg)
 		rm(curbg)
 		gc()
 
