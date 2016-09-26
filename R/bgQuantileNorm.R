@@ -14,15 +14,20 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 
 	#cat("sorting reference\n")
 	if(!unequal){
+		cat("input data sets have equal lines\n")
+
 		bgrefs <- bgSort(bgfiles[normalizeto], threads=threads)
+
 	} else{
+		cat("input data sets have unequal lines\n")
 		bgrefs=bgfiles[normalizeto]
 	}
 
 	if(length(normalizeto)>1){
 		#stopifnot(length(unique(fl[normalizeto]))!=1)
 		if(unequal){
-			bgref <- bedCat(bgrefs)
+			tmpname <- randomStrings()
+			bgref <- bedCat(bgrefs,tmpname)
 		} else{
 			bgref <- bgOps(bgrefs, operation="mean", outnames = paste0("mean_",basename(bgrefs[1])))
 		}
