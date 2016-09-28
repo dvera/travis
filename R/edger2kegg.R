@@ -1,7 +1,7 @@
 # param edgerfiles - vector of edger filepaths 
 # param pathways - if not 'all', character vector of pathway ids from http://www.genome.jp/kegg/pathway.html
 # param sigonly - if TRUE, only color significantly differentially expressed items, else color all 
-edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(-1,1) , entrezOrganism="Hs", sigonly=FALSE ){
+edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(-1,1) , entrezOrganism="Hs", sigonly=FALSE, pval=FALSE ){
 
   library(pathview)
   library(KEGGREST)
@@ -25,9 +25,13 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
 
     # making binary calls for up/down regulated
     de[[i]]$call=0
-    de[[i]]$call[which(de[[i]]$QValue<=0.05 & de[[i]]$logFC<0)] <- (-1)  # if row is signgicant and log2(fold_change)<0, set call to -1
-    de[[i]]$call[which(de[[i]]$QValue<=0.05 & de[[i]]$logFC>0)] <- 1     # if row is signgicant and log2(fold_change)>0, set call to 1
-
+    if(!pval) {
+      de[[i]]$call[which(de[[i]]$QValue<=0.05 & de[[i]]$logFC<0)] <- (-1)  # if row is signgicant and log2(fold_change)<0, set call to -1
+      de[[i]]$call[which(de[[i]]$QValue<=0.05 & de[[i]]$logFC>0)] <- 1     # if row is signgicant and log2(fold_change)>0, set call to 1
+    } else {
+      de[[i]]$call[which(de[[i]]$PValue<=0.05 & de[[i]]$logFC<0)] <- (-1)  # if row is signgicant and log2(fold_change)<0, set call to -1
+      de[[i]]$call[which(de[[i]]$PValue<=0.05 & de[[i]]$logFC>0)] <- 1     # if row is signgicant and log2(fold_change)>0, set call to 1
+    }
     unq<-as.numeric(rownames(unique(data.frame(de[[i]]$entrez)))) # get indices for rows with unique entrez ids
     de[[i]]<-de[[i]][unq,]  # remove duplicate entrez rows from de
   #### remove rows (just one i think) where entrez id is NA
@@ -71,14 +75,17 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
     row.names(vals)<-de[[i]]$entrez
     # if only want to color significant rows
     if(sigonly) {
-      vals[which(vals[,4]>0.05),1] <- 0   # set logFC to 0 for all insignificant items 
+      if(!pval)
+        vals[which(vals[,"QValue"]>0.05),1] <- 0   # set logFC to 0 for all insignificant items (based on QValue) 
+      else
+        vals[which(vals[,"PValue"]>0.05),1] <- 0   # set logFC to 0 for all insignificant items (based on PValue)
     }
 
     for(j in 1:numdbs){
       cat(removeext(edgerfiles[i]),": ",dbnames[j],"\n")
       
-      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_pathview"              ), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits) )
-      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits) )
+      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_pathview"              ), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
+      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
     }
   } # \for each file in edgerfiles
 
