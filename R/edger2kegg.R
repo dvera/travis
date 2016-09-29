@@ -83,10 +83,27 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
 
     for(j in 1:numdbs){
       cat(removeext(edgerfiles[i]),": ",dbnames[j],"\n")
+      res1 = tryCatch({
+        pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_pathview"              ), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
+      },warning = function(w) {
+          cat("\tWarning generated for pathview() call #1!\n")
+      }, error = function(e) {
+          cat("\tError generated for pathview() call #1!\n")
+      }, finally = {
+          cat("\tpathview() call #1 done.\n")
+      })
+      res2 = tryCatch({
+        pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
+      },warning = function(w) {
+          cat("\tWarning generated for pathview() call #2!\n")
+      }, error = function(e) {
+          cat("\tError generated for pathview() call #2!\n")
+      }, finally = {
+          cat("\tpathview() call #2 done.\n")
+      })
       
-      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_pathview"              ), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
-      pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
-    }
+    } # \for each db
+        
   } # \for each file in edgerfiles
 
 } # \edger2kegg()
