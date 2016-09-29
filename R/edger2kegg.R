@@ -88,20 +88,20 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
       res1 = tryCatch({
         pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_pathview"              ), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
       },warning = function(w) {
-          cat("\tWarning generated for pathview() call #1!\n")
+          cat("\tWarning generated for pathview() call #1 in ", removeext(edgerfiles[i]),": ",dbnames[j],"!\n")
       }, error = function(e) {
-          cat("\tError generated for pathview() call #1!\n")
+          cat("\tError generated for pathview() call #1 in ", removeext(edgerfiles[i]),": ",dbnames[j],"!\n")
       }, finally = {
-          cat("\tpathview() call #1 done.\n")
+          #cat("\tpathview() call #1 done.\n")
       })
       res2 = tryCatch({
         pathview( gene.data=vals[,1],          pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",removeext(edgerfiles[i]), "_log2ratio_keggNative"            ), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
       },warning = function(w) {
-          cat("\tWarning generated for pathview() call #2!\n")
+          cat("\tWarning generated for pathview() call #2 in ", removeext(edgerfiles[i]),": ",dbnames[j],"!\n")
       }, error = function(e) {
-          cat("\tError generated for pathview() call #2!\n")
+          cat("\tError generated for pathview() call #2 in ", removeext(edgerfiles[i]),": ",dbnames[j],"!\n")
       }, finally = {
-          cat("\tpathview() call #2 done.\n")
+          #cat("\tpathview() call #2 done.\n")
       })
       
     }, mc.cores=threads,mc.preschedule=F) #} # \for each db
