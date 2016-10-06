@@ -78,10 +78,11 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
     row.names(vals)<-de[[i]]$entrez
     # if only want to color significant rows
     if(sigonly) {
-      if(!pval)
+      if(!pval){ 
         vals[which(vals[,"QValue"]>0.05),1] <- 0   # set logFC to 0 for all insignificant items (based on QValue) 
-      else
+      } else {
         vals[which(vals[,"PValue"]>0.05),1] <- 0   # set logFC to 0 for all insignificant items (based on PValue)
+      }
     }
     if(gradient) {
       if(!pval) {
@@ -95,10 +96,11 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
 
     dump <- mclapply(1:numdbs, function(j) {
     #for(j in 1:numdbs){
-      if(gradient)
+      if(gradient){
         gd=vals[,6]
-      else
+      } else {
         gd=vals[,1]
+       }
       bn=basename(removeext(edgerfiles[i]))
       cat(bn," : ","\n")
       res1 = tryCatch({
