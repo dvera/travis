@@ -94,15 +94,15 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
       colnames(vals)[6]="gradientScore"
     }
 
-    dump <- mclapply(1:numdbs, function(j) {
-    #for(j in 1:numdbs){
+    #dump <- mclapply(1:numdbs, function(j) {
+    for(j in 1:numdbs){
       if(gradient){
         gd=vals[,6]
       } else {
         gd=vals[,1]
        }
       bn=basename(removeext(edgerfiles[i]))
-      cat(bn," : ","\n")
+      cat(bn," : ",dbshortnames[j],"\n")
       res1 = tryCatch({
         pathview( gene.data=gd, pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",bn, "_log2ratio_pathview"), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
       },warning = function(w) {
@@ -122,7 +122,8 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
           #cat("\tpathview() call #2 done.\n")
       })
       
-    }, mc.cores=threads,mc.preschedule=F) #} # \for each db
+    } # \for each db 
+    # }, mc.cores=threads,mc.preschedule=F) # \for each db
         
   } # \for each file in edgerfiles # }, mc.cores=threads,mc.preschedule=F)) 
 
