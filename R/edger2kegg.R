@@ -77,7 +77,13 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
     vals=data.matrix(de[[i]][,c("logFC","logCPM","PValue","QValue","call")])
     row.names(vals)<-de[[i]]$entrez
     # if only want to color significant rows
+    if(pval) { 
+      suff="_pval" 
+    } else { 
+      suff="_qval" 
+    }
     if(sigonly) {
+      suff=paste0(suff,"Sigonly")
       if(!pval){ 
         vals[which(vals[,"QValue"]>0.05),1] <- 0   # set logFC to 0 for all insignificant items (based on QValue) 
       } else {
@@ -85,6 +91,7 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
       }
     }
     if(gradient) {
+      suff=paste0(suff,"Gradient")
       if(!pval) {
         vals=cbind(vals[,],(sign(vals[,"logFC"])*(-log10(vals[,"QValue"]))))
       }
@@ -104,7 +111,7 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
       bn=basename(removeext(edgerfiles[i]))
       cat(bn," : ",dbshortnames[j],"\n")
       res1 = tryCatch({
-        pathview( gene.data=gd, pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",bn, "_log2ratio_pathview"), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
+        pathview( gene.data=gd, pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",bn,suff, "_log2ratio_pathview"), sign.pos="bottomleft", kegg.native=FALSE, limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
       },warning = function(w) {
           cat("\tWarning generated for pathview() call #1 in ", bn,": ",dbnames[j],"!\n")
       }, error = function(e) {
@@ -113,7 +120,7 @@ edger2kegg <- function( edgerfiles , organism="hsa" , pathways="all" , limits=c(
           #cat("\tpathview() call #1 done.\n")
       })
       res2 = tryCatch({
-        pathview( gene.data=gd, pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",bn, "_log2ratio_keggNative"), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
+        pathview( gene.data=gd, pathway.id=as.character(dbid[j]),species=organism,out.suffix=paste0(dbshortnames[j],"_",bn,suff, "_log2ratio_keggNative"), sign.pos="bottomleft", kegg.native=TRUE,  limit=list(cpd=limits,gene=limits),low =list(gene = "red", cpd = "yellow") , mid = list(gene = "gray", cpd= "gray"), high =list(gene = "green", cpd = "blue") )
       },warning = function(w) {
           cat("\tWarning generated for pathview() call #2 in ", bn,": ",dbnames[j],"!\n")
       }, error = function(e) {
