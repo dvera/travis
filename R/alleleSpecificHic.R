@@ -1,12 +1,14 @@
-samParseGenomesPaired <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS="AS:i:-20", minQual=20 , threads=getOption("threads",1L) , sortBuffer="1G" , sortThreads=NULL , ... ){
+alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS="AS:i:-20", minQual=20 , threads=getOption("threads",1L) , sortBuffer="1G" , sortThreads=NULL , ... ){
 
 
 
   # genome1sams <- bowtie2(fastqFiles1, fastqFiles2, index1prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
   # genome2sams <- bowtie2(fastqFiles1, fastqFiles2, index2prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
 
-  genome1sams <- bowtie2(fastqFiles1, fastqFiles2, index1prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
-  genome2sams <- bowtie2(fastqFiles1, fastqFiles2, index2prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
+  sam_g1r1 <- bowtie2(fastqFiles1, index1prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
+  sam_g1r2 <- bowtie2(fastqFiles2, index1prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
+  sam_g2r1 <- bowtie2(fastqFiles1, index2prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
+  sam_g2r2 <- bowtie2(fastqFiles2, index2prefix, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
 
 
   fields=c("AS","XM","XO","XG","NM")
@@ -46,11 +48,16 @@ samParseGenomesPaired <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix
 
   # generate some names for temporary and output files
   basenames <- basename(removeext(unlist(allsams)))
+
+
+
   preparsed <- paste0(basenames, "_preparsed.sam")
   unnparsed <- paste0(basenames, "_unnparsed.sam")
   spcparsed <- paste0(basenames, "_spcparsed.sam")
   genparsed <- paste0(basenames, "_genparsed.sam")
 
+  pre1 <- paste0(removeext(sam_g1r1),"_preparsed.sam")
+  pre2 <- paste0(removeext(sam_g1r2),"_preparsed.sam")
   # check if sams have identical query sequences
   # cat("checking if sams have identical queries\n")
   # samcounts <- matrix(samtoolsView(allsams,count=TRUE,threads=threads),nrow=numsamples)
@@ -71,47 +78,72 @@ samParseGenomesPaired <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix
 
   nf=11+length(fields)
 
-  XM_G1R1=which(fields=="XM")+11
-  XM_G1R2=XM1+nf
-  XM_G2R1=XM1+nf+nf
-  XM_G2R2=XM1+nf+nf+nf
+  XM1=which(fields=="XM")+11
+  XM2=XM_G1+nf
 
-  AS_G1R1=which(fields=="AS")+11
-  AS_G1R2=AS1+nf
-  AS_G2R1=AS1+nf+nf
-  AS_G2R2=AS1+nf+nf+nf
+  AS1=which(fields=="AS")+11
+  AS2=AS1+nf
 
-  NM_G1R1=which(fields=="NM")+11
-  NM_G1R2=NM1+nf
-  NM_G2R1=NM1+nf+nf
-  NM_G2R2=NM1+nf+nf+nf
+  NM1=which(fields=="NM")+11
+  NM2=NM1+nf
 
-  CH_G1R1=3
-  CH_G1R2=3+nf
-  CH_G2R1=3+nf+nf
-  CH_G2R2=3+nf+nf+nf
+  CH1=3
+  CH2=3+nf
 
-  MQ_G1R1=5
-  MQ_G1R2=5+nf
-  MQ_G2R1=5+nf+nf
-  MQ_G2R2=5+nf+nf+nf
+  MQ1=5
+  MQ2=5+nf
 
+  # XM_G1R1=which(fields=="XM")+11
+  # XM_G1R2=XM1+nf
+  # XM_G2R1=XM1+nf+nf
+  # XM_G2R2=XM1+nf+nf+nf
+  #
+  # AS_G1R1=which(fields=="AS")+11
+  # AS_G1R2=AS1+nf
+  # AS_G2R1=AS1+nf+nf
+  # AS_G2R2=AS1+nf+nf+nf
+  #
+  # NM_G1R1=which(fields=="NM")+11
+  # NM_G1R2=NM1+nf
+  # NM_G2R1=NM1+nf+nf
+  # NM_G2R2=NM1+nf+nf+nf
+  #
+  # CH_G1R1=3
+  # CH_G1R2=3+nf
+  # CH_G2R1=3+nf+nf
+  # CH_G2R2=3+nf+nf+nf
+  #
+  # MQ_G1R1=5
+  # MQ_G1R2=5+nf
+  # MQ_G2R1=5+nf+nf
+  # MQ_G2R2=5+nf+nf+nf
+  #
+
+  tag0="PG\":\"i\":\"0"
+  tag1="PG\":\"i\":\"1"
+  tag2="PG\":\"i\":\"2"
 
 
   cat("parsing reads common to both genome sam files\n")
   cmdString <- paste0(
     #"bash -c paste <(",squareString,genome1sams,"| paste",rep("-",2*nf),") <(",squareString,genome2sams,"| paste",rep("-",2*nf),") | awk -F'\t' '{",
       #"split($",AS_G1R1,",AS_G1R1,\":\"); split($",AS_G1R2,",AS_G1R1,\":\"); split($",AS_G2R1,",AS_G2R1,\":\"); split($",AS_G2R2,",AS_G2R2,\":\");",
-      "bash -c paste <(",squareString,genome1sams,"| paste",rep("-",2*nf),") <(",squareString,genome2sams,"| paste",rep("-",2*nf),") | awk -F'\t' '{",
-             "if($",CH_G2R1,"==\"*\" && AS1[3] > ",minAS," && $5 > ",minQual,"){ print ",paste0("$",1:nf,collapse=",")," > \"",preparsed[g1],"\"}",
-      "else if($3==\"*\" && AS1[3] > ",minAS," && $",4+nf," > ",minQual,"){ print $1,", paste0("$",nf+(1:(nf-1)),collapse=",")," > \"",preparsed[g2],"\"}",
-      "else if($",NM1," < $",NM2," && $",XM1," < $",XM2," && AS1[3] > ",minAS," && $5 >= ",minQual," && $",4+nf," > ",minQual,"){ print    ", paste0("$",1:nf,collapse=",")         ," > \"",preparsed[g1],"\"}",
-      "else if($",NM2," < $",NM1," && $",XM2," < $",XM1," && AS2[3] > ",minAS," && $5 >= ",minQual," && $",4+nf," > ",minQual,"){ print $1,", paste0("$",nf+(1:(nf-1)),collapse=",")," > \"",preparsed[g2],"\"}",
-      "else{",
-        "print    ",paste0("$",1:nf,          collapse=",")," > \"",unnparsed[g1],"\";",
-        "print $1,",paste0("$",nf+(1:(nf-1)), collapse=",")," > \"",unnparsed[g2],"\"",
-      "}",
-    "}' OFS='\t'"
+
+      "bash -c paste <(",squareString,sam_g1r1,") <(",squareString,sam_g2r1,")",
+      " | awk -F'\t' '{",
+        "if($",CH2,"==\"*\" && $",AS1,"[3] > ",minAS," && $",MQ1," > ",minQual,"){",
+          "print     ",paste0("$",1:nf,collapse=","),",",tag1," > \"",pre1,"\"}",
+        "else if($",CH1,"==\"*\" && $",AS2,"[3] > ",minAS," && $",MQ2," > ",minQual,"){",
+          "print $1,", paste0("$",nf+(1:(nf-1)),collapse=","),",",tag2," > \"",pre1,"\"}",
+        "else if($",NM1," < $",NM2," && $",XM1," < $",XM2," && $",AS1,"[3] > ",minAS," && $",MQ1," >= ",minQual," && $",MQ2," >= ",minQual,"){",
+          "print    ", paste0("$",1:nf,collapse=","),",",tag1," > \"",pre1,"\"}",
+        "else if($",NM2," < $",NM1," && $",XM2," < $",XM1," && AS2[3] > ",minAS," && $5 >= ",minQual," && $",4+nf," > ",minQual,"){",
+          "print $1,", paste0("$",nf+(1:(nf-1)),collapse=","),",",tag2," > \"",pre1,"\"}",
+        "else{",
+          "print    ",paste0("$",1:nf,          collapse=","),",",tag0," > \"",pre1,"\"}",
+        "}",
+      "}' OFS='\t'"
+
   )
   res <- cmdRun(cmdString,threads=threads)
 
