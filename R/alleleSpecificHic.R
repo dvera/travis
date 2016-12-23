@@ -47,14 +47,14 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
   # }
 
   # generate some names for temporary and output files
-  basenames <- basename(removeext(unlist(allsams)))
-
-
-
-  preparsed <- paste0(basenames, "_preparsed.sam")
-  unnparsed <- paste0(basenames, "_unnparsed.sam")
-  spcparsed <- paste0(basenames, "_spcparsed.sam")
-  genparsed <- paste0(basenames, "_genparsed.sam")
+  # basenames <- basename(removeext(unlist(allsams)))
+  #
+  #
+  #
+  # preparsed <- paste0(basenames, "_preparsed.sam")
+  # unnparsed <- paste0(basenames, "_unnparsed.sam")
+  # spcparsed <- paste0(basenames, "_spcparsed.sam")
+  # genparsed <- paste0(basenames, "_genparsed.sam")
 
   pre1 <- paste0(removeext(sam_g1r1),"_preparsed.sam")
   pre2 <- paste0(removeext(sam_g1r2),"_preparsed.sam")
@@ -79,7 +79,7 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
   nf=11+length(fields)
 
   XM1=which(fields=="XM")+11
-  XM2=XM_G1+nf
+  XM2=XM1+nf
 
   AS1=which(fields=="AS")+11
   AS2=AS1+nf
@@ -143,35 +143,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
           "print    ",paste0("$",1:nf,          collapse=","),",",tag0," > \"",pre1,"\"}",
         "}",
       "}' OFS='\t'"
-
   )
   res <- cmdRun(cmdString,threads=threads)
-
-  if(unequal){
-
-    cat("parsing reads unique to genome 1\n")
-    cmdString <- paste0(
-      "join -v 1 -t $'\t' -j 1 ",allsamsSorted[g1]," ",allsamsSorted[g2], " | awk -F'\t' '{",
-        #"if(NR==1){nf=NF};",fltr1,"; split($AS1,AS1S,\":\");",
-        "split($",AS1,",AS1,\":\");",
-        "if(AS1[3] > ",minAS," && $5 >= ",minQual,"){ print ",paste0("$",1:nf,collapse=",")," > \"",spcparsed[g1],"\"}",
-        "else{print $0 >> \"",unnparsed[g1],"\"}",
-      "}' OFS='\t'"
-    )
-    res <- cmdRun(cmdString,threads=threads)
-
-    cat("parsing reads unique to genome 2\n")
-    cmdString <- paste0(
-      "join -v 1 -t $'\t' -j 1 ",allsamsSorted[g1]," ",allsamsSorted[g2], " | awk -F'\t' '{",
-        #"if(NR==1){nf=NF};",fltr1,"; split($AS1,AS1S,\":\");",
-        "split($",AS1,",AS1,\":\");",
-        "if(AS1[3] > ",minAS," && $5 >= ",minQual,"){ print ",paste0("$",1:nf,collapse=",")," > \"",spcparsed[g2],"\"}",
-        "else{print $0 > \"",unnparsed[g2],"\"}",
-      "}' OFS='\t'"
-    )
-    res <- cmdRun(cmdString,threads=threads)
-
-  }
 
 
   cmdString <- paste(
