@@ -7,6 +7,8 @@
 
 bgScores <- function( bgFiles , threads=getOption("threads", 1L), sample=NULL, chrom=NULL, first=NULL ){
 
+  options(scipen=9999)
+  
   numbeds <- length(bgFiles)
 
   if( !is.null(sample) & !is.null(chrom) ){stop("must set sample or chrom or neither, but not both")}
