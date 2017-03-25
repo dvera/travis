@@ -15,7 +15,6 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 	#cat("sorting reference\n")
 	if(!unequal){
 		cat("input data sets have equal lines\n")
-
 		bgrefs <- bgSort(bgfiles[normalizeto], threads=threads)
 
 	} else{
@@ -26,10 +25,16 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 	if(length(normalizeto)>1){
 		#stopifnot(length(unique(fl[normalizeto]))!=1)
 		if(unequal){
+			lineratio <- ceiling(max(fl)/sum(fl[normalizeto]))
 			tmpname <- randomStrings()
+			tmpname2 <- randomStrings()
 			bgref <- bedCat(bgrefs,tmpname)
+			if(lineratio>1){
+				bgref <- bedCat(rep(bgref,lineratio),tmpname2)
+			}
 		} else{
 			bgref <- bgOps(bgrefs, operation="mean", outnames = paste0("mean_",basename(bgrefs[1])))
+			
 		}
 	} else{
 		bgref <- bgrefs
@@ -43,13 +48,14 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 
 
 
-	# if(unequal){
+	if(unequal){
 		cmdString <- paste("bash -c 'paste <(sort -T . -k4,4n",bgfiles,") <(shuf -n",fl,bgref," | sort -T . -k4,4n)' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
 		#cmdString <- paste0("paste <(sort -T . -k4,4n ",bgfiles,") <(shuf -n",fl,bgref," | sort -T . -k4,4n) | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
-	# } else{
-		# cmdString <- paste("sort -T . -k4,4n",bgfiles,"| paste -",bgref,"| awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
+	} else{
+		bgref <- bgSort(bgref)
+		cmdString <- paste("bash -c 'paste <(sort -T . -k4,4n",bgfiles,") <(sort -T . -k4,4n",bgref,")' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,3n >",outnames)
 
-	# }
+	}
 
 	res <- cmdRun(cmdString,threads=threads)
 	# unlink(bgref)
