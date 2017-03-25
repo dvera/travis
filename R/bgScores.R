@@ -11,20 +11,17 @@ bgScores <- function( bgFiles , threads=getOption("threads", 1L), sample=NULL, c
 
   if( !is.null(sample) & !is.null(chrom) ){stop("must set sample or chrom or neither, but not both")}
 
-
   if(!is.null(sample)){
-    stopifnot(is.numeric(sample), length(sample)==1)
-    cmdString <- paste("shuf -n",sample,bgFiles,"| awk '{print $4}'")
+    stopifnot(is.numeric(sample), length(sample)==1,sample>0)
+    cmdString <- paste("shuf -n",sample,bgFiles,"| cut -f 4")
   } else if( !is.null(chrom)){
     stopifnot(length(chrom)==1)
-    cmdString <- paste0("grep -P '^",chrom,"\\t' ",bgFiles," | awk '{print $4}'")
+    cmdString <- paste0("grep -P '^",chrom,"\\t' ",bgFiles," | cut -f 4")
   } else if(!is.null(first) & is.numeric(first)){
-    cmdString <- paste0("head -n",first,bgFiles," | awk '{print $4}'")
+    cmdString <- paste("head -n",first,bgFiles," | cut -f 4")
   } else{
-    cmdString <- paste("awk '{print $4}'",bgFiles)
+    cmdString <- paste("cut -f 4",bgFiles)
   }
-
-
 
   res <- cmdRun( cmdString, threads, lines=TRUE)
   res <- lapply( res, as.numeric )
