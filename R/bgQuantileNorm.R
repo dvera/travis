@@ -49,11 +49,11 @@ function( bgfiles, normalizeto = 1:length(bgfiles) , threads=getOption("threads"
 
 
 	if(unequal){
-		cmdString <- paste("bash -c 'paste <(sort -T . -k4,4n",bgfiles,") <(shuf -n",fl,bgref," | sort -T . -k4,4n)' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
+		cmdString <- paste("bash -c 'paste <(sort -g -T . -k4,4n",bgfiles,") <(shuf -n",fl,bgref," | sort -g -T . -k4,4n)' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
 		#cmdString <- paste0("paste <(sort -T . -k4,4n ",bgfiles,") <(shuf -n",fl,bgref," | sort -T . -k4,4n) | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,2n >",outnames)
 	} else{
 		bgref <- bgSort(bgref)
-		cmdString <- paste("bash -c 'paste <(sort -T . -k4,4n",bgfiles,") <(sort -T . -k4,4n",bgref,")' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,3n >",outnames)
+		cmdString <- paste("bash -c 'paste <(sort -g -T . -k4,4n",bgfiles,") <(sort -g -T . -k4,4n",bgref,")' | awk '{print $1,$2,$3,$8}' OFS='\t' | sort -T . -k1,1 -k2,3n >",outnames)
 
 	}
 
