@@ -6,7 +6,7 @@
 #' @param threads A positive integer specifying how many bedGraph files to process simultaneously.
 
 bgHist <-
-function( bedFiles , sample=NULL , chrom = NULL , first = NULL , threads=getOption("threads",1L) ){
+function( bedFiles , sample=NULL , chrom = NULL , first = NULL , threads=getOption("threads",1L), ... ){
 	options(scipen=9999)
 	scores <- bgScores(bedFiles, threads=threads, sample=sample, chrom=chrom, first=first)
 	rageHist(scores, threads=threads, ... )
