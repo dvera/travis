@@ -6,7 +6,7 @@
 #' @param threads A positive integer specifying how many beds to process simultaneously.
 
 bedHist <-
-function( bedFiles , sample=NULL , chrom = NULL , first = NULL , threads=getOption("threads",1L) ){
+function( bedFiles , sample=NULL , chrom = NULL , first = NULL , threads=getOption("threads",1L), ... ){
 	options(scipen=9999)
 	scores <- bedSizes(bedFiles, threads=threads, sample=sample, chrom=chrom, first=first)
 	rageHist(scores, threads=threads, ... )
