@@ -5,7 +5,7 @@
 #' @param bedFiles A character vector of paths to bed files.
 #' @param threads A positive integer specifying how many bams to process simultaneously.
 
-bedSizes <- function( bedFiles , sample=NULL , threads=getOption("threads", 1L) ){
+bedSizes <- function( bedFiles , sample=NULL , chrom=NULL , first=NULL , threads=getOption("threads", 1L) ){
   options(scipen=99999)
   numbeds <- length(bedFiles)
   
