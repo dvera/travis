@@ -67,8 +67,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
     if(!is.null(fastqFiles2)){
       paired=TRUE
     }
-    sam1 <- bowtie2(fastqFiles1, index1prefix, if(paired){fastqFiles2), discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
-    sam2 <- bowtie2(fastqFiles1, index2prefix, if(paired){fastqFiles2), discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
+    sam1 <- bowtie2(fastqFiles1, index1prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
+    sam2 <- bowtie2(fastqFiles1, index2prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
   }
 
 
