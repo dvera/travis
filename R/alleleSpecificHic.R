@@ -60,6 +60,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
       paired=FALSE
     }
 
+  } else{
+    sam=FALSE
   }
 
 
