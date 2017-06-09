@@ -1,4 +1,4 @@
-alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS=-20, minQual=20 , threads=getOption("threads",1L) , fields=c("AS","XM","XO","XG","NM") , ... ){
+parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS=-20, minQual=20 , threads=getOption("threads",1L) , fields=c("AS","XM","XO","XG","NM") , ... ){
 
   #TO DO:
   # pipe bowtie2 to parsing
