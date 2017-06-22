@@ -1,11 +1,20 @@
 bgLoess <-
-function( bgfiles, lspan, threads=getOption("threads",1L), mbg=FALSE ){
+function( bgfiles, lspan, chromsizes, threads=getOption("threads",1L), mbg=FALSE ){
 
 	options(scipen=9999)
 	# assumes sorted bg
 	if(lspan<1){
 		stop("lspan must indicate distance in bp")
 	}
+	if(missing(chromsizes)){
+		chromsizes<-getOption("chromsizes",NULL)
+		if(is.null(chromsizes)){warning("No chromsizes file defined. Using chromosome coordinate ranges to estimate chromosome sizes")}
+		chrom.sizes <- tsvRead(chromsizes)
+	} else{
+		chrom.sizes <- NULL
+	}
+	
+
 	bgnames <- basename(removeext(bgfiles))
 	numbgs <- length(bgfiles)
 	outnames <- paste(bgnames,"_loess",lspan,".bg",sep="")
@@ -29,7 +38,20 @@ function( bgfiles, lspan, threads=getOption("threads",1L), mbg=FALSE ){
 		lscores<-lapply(1:numchroms,function(i){
 			
 			cur <- all[[i]]
-			chromlspan <- lspan/sum(cur[,3]-cur[,2])
+			
+			curchrom <- cur[1,1]
+			
+			if(!is.null(chrom.sizes)){
+				chromi <- grep(curchrom,chrom.sizes[,1])
+				if(length(chromi)==0){
+					stop(paste("Cannot find",curchrom,"in chromsizes"))
+				} else{
+					chromlspan <- lspan/chrom.sizes[chromi,2]
+				}
+			} else{
+				chromlspan <- lspan/sum(max(cur[,3])-min(cur[,2]))
+			}
+			
 			
 			cura <- as.data.frame(lapply(4:ncol(cur), function(k){
 				cur[,k] <- tryCatch({
