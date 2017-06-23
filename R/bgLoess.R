@@ -1,5 +1,5 @@
 bgLoess <-
-function( bgfiles, lspan, chromsizes, threads=getOption("threads",1L), mbg=FALSE ){
+function( bgfiles, lspan, chromsizes, interpolate=NULL, maxGap=200000, threads=getOption("threads",1L), mbg=FALSE ){
 
 	options(scipen=9999)
 	# assumes sorted bg
@@ -14,6 +14,7 @@ function( bgfiles, lspan, chromsizes, threads=getOption("threads",1L), mbg=FALSE
 		chrom.sizes <- NULL
 	}
 	
+	
 
 	bgnames <- basename(removeext(bgfiles))
 	numbgs <- length(bgfiles)
@@ -23,8 +24,14 @@ function( bgfiles, lspan, chromsizes, threads=getOption("threads",1L), mbg=FALSE
 
 	#dump <- mclapply(seq_len(numbgs), function(x){
 	dump <- lapply(seq_len(numbgs), function(x){
-		curbg <- as.data.frame( read.table ( bgfiles[x], header=mbg, stringsAsFactors=FALSE ) )
-		
+		if(is.null(interpolate)){
+			curbg <- as.data.frame( read.table ( bgfiles[x], header=mbg, stringsAsFactors=FALSE ) )
+		} else{
+			cmdString <- paste("bedtools merge -d", maxGap, "-i", bgfiles[x],
+			"| bedtools intersect -u -a", interpolate,"-b stdin | bedtools map -null NA -c 4 -a stdin -b",
+			bgfiles[x])
+			curbg <- cmdRun(cmdString, tsv=T)[[1]]
+		}
 		if(mbg){
 			columnnames=colnames(curbg)
 		}
