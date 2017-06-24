@@ -25,6 +25,7 @@ function( bgfiles, lspan, chromsizes, interpolate=NULL, maxGap=200000, threads=g
 	#dump <- mclapply(seq_len(numbgs), function(x){
 	dump <- lapply(seq_len(numbgs), function(x){
 		if(is.null(interpolate)){
+			if(mbg){stop("interpolation is not currently supported with mbg files")}
 			curbg <- as.data.frame( read.table ( bgfiles[x], header=mbg, stringsAsFactors=FALSE ) )
 		} else{
 			cmdString <- paste("bedtools merge -d", maxGap, "-i", bgfiles[x],
@@ -62,13 +63,13 @@ function( bgfiles, lspan, chromsizes, interpolate=NULL, maxGap=200000, threads=g
 			
 			cura <- as.data.frame(lapply(4:ncol(cur), function(k){
 				cur[,k] <- tryCatch({
-						loess(cur[,k]~cur[,2],span=chromlspan)$fitted
+						predict(loess(cur[,k]~cur[,2],span=chromlspan),cur[,2])
 					},warning = function(war){
-						print(paste("warning for file",bgnames[x],"chromosome",cur[1,1],":",war))
-						out <- loess(cur[,k]~cur[,2],span=chromlspan)$fitted
+						warning(paste(bgnames[x],"chromosome",cur[1,1],":",war))
+						out <- predict(loess(cur[,k]~cur[,2],span=chromlspan),cur[,2])
 						return(out)
 					},error = function(err){
-						print(paste("smoothing failed for file",bgnames[x],"chromosome",cur[1,1],":",err))
+						warning(paste("smoothing failed for file",bgnames[x],"chromosome",cur[1,1],":",err))
 						return(cur[,k])
 					}
 				)
