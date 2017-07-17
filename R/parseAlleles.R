@@ -75,8 +75,8 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
 
 
   par0 <- paste0("\"",fname1,"_unmapped.sam\"")
-  par1 <- paste0("\"",fname1,"_",i1p,".sam\"")
-  par2 <- paste0("\"",fname1,"_",i2p,".sam\"")
+  par1 <- paste0("\"",fname1,"_parsed_",i1p,".sam\"")
+  par2 <- paste0("\"",fname1,"_parsed_",i2p,".sam\"")
   par3 <- paste0("\"",fname1,"_ambiguous.sam\"")
 
   par11 <- paste0("\"",fname1,"_",i1p,"-",i1p,".sam\"")
