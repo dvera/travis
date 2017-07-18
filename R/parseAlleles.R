@@ -87,7 +87,7 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
   par01 <- paste0("\"",fname1,"_",i1p,"-unm.sam\"")
   par02 <- paste0("\"",fname1,"_",i2p,"-unm.sam\"")
   par00 <- paste0("\"",fname1,"_unm-unm.sam\"")
-  par33 <- paste0(fname1,"_amb-amb.sam\"")
+  par33 <- paste0("\"",fname1,"_amb-amb.sam\"")
 
 
   minASstring <- paste0("AS:i:",minAS)
@@ -186,16 +186,16 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
         # if the line is a header
         "    if($1~\"@\"){\n",
         "      HL++\n",
-        "      a=gsub(\"___\",\"\\t\",$1)",
-        "      print a >",par11,
-        "      print a >",par22,
-        "      print a >",par33,
-        "      print a >",par00,
-        "      print a >",par12,
-        "      print a >",par23,
-        "      print a >",par01,
-        "      print a >",par02,
-        "      print a >",par13,
+        "      a=gsub(\"___\",\"\\t\",$1)\n",
+        "      print a >",par11,"\n",
+        "      print a >",par22,"\n",
+        "      print a >",par33,"\n",
+        "      print a >",par00,"\n",
+        "      print a >",par12,"\n",
+        "      print a >",par23,"\n",
+        "      print a >",par01,"\n",
+        "      print a >",par02,"\n",
+        "      print a >",par13,"\n",
             # if r1 and r2 are g1
         "    } else if(",pgfield1,"==",tag1," && ",pgfield2,"==",tag1,"){\n",
         "      P11++\n",
