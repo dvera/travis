@@ -186,7 +186,7 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
         # if the line is a header
         "    if($1~\"@\"){\n",
         "      HL++\n",
-        "      a=gensub(/___/,\"\\t\",g,$1)\n",
+        "      a=gensub(/___/,\"\\t\",\"g\",$1)\n",
         "      print a >",par11,"\n",
         "      print a >",par22,"\n",
         "      print a >",par33,"\n",
@@ -261,7 +261,7 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
         "    if($1~\"@\"){\n",
         "      HL++\n",
         "      $0=$1\n",
-        "      a=gensub(/___/,\"\\t\",g,$1)\n",
+        "      a=gensub(/___/,\"\\t\",\"g\",$1)\n",
         "      print a > ",par1,"\n",
         "      print a > ",par2,"\n",
         "      print a > ",par3,"\n",
