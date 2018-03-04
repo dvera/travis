@@ -187,19 +187,6 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
         # if the line is a header
         "    if($1~\"@\"){\n",
         "      HL++\n",
-<<<<<<< HEAD:R/alleleSpecificHic.R
-        "      $0=$1\n",
-        "      gsub(\"___\",\"\\t\",$1)\n",
-        "      print $0 >",par11,"\n",
-        "      print $0 >",par22,"\n",
-        "      print $0 >",par33,"\n",
-        "      print $0 >",par00,"\n",
-        "      print $0 >",par12,"\n",
-        "      print $0 >",par23,"\n",
-        "      print $0 >",par01,"\n",
-        "      print $0 >",par02,"\n",
-        "      print $0 >",par13,"\n",
-=======
         "      a=gensub(/___/,\"\\t\",\"g\",$1)\n",
         "      print a >",par11,"\n",
         "      print a >",par22,"\n",
@@ -210,7 +197,6 @@ parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2p
         "      print a >",par01,"\n",
         "      print a >",par02,"\n",
         "      print a >",par13,"\n",
->>>>>>> b73cdf857e30ab43ed4457d84da5c1850033ed4e:R/parseAlleles.R
             # if r1 and r2 are g1
         "    } else if(",pgfield1,"==",tag1," && ",pgfield2,"==",tag1,"){\n",
         "      P11++\n",
