@@ -1,4 +1,4 @@
-alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS=-20, minQual=20 , threads=getOption("threads",1L) , fields=c("AS","XM","XO","XG","NM") , ... ){
+parseAlleles <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, index2prefix , minAS=-20, minQual=20 , threads=getOption("threads",1L) , fields=c("AS","XM","XO","XG","NM") , ... ){
 
   #TO DO:
   # pipe bowtie2 to parsing
@@ -76,8 +76,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
 
 
   par0 <- paste0("\"",fname1,"_unmapped.sam\"")
-  par1 <- paste0("\"",fname1,"_",i1p,".sam\"")
-  par2 <- paste0("\"",fname1,"_",i2p,".sam\"")
+  par1 <- paste0("\"",fname1,"_parsed_",i1p,".sam\"")
+  par2 <- paste0("\"",fname1,"_parsed_",i2p,".sam\"")
   par3 <- paste0("\"",fname1,"_ambiguous.sam\"")
 
   par11 <- paste0("\"",fname1,"_",i1p,"-",i1p,".sam\"")
@@ -187,6 +187,7 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
         # if the line is a header
         "    if($1~\"@\"){\n",
         "      HL++\n",
+<<<<<<< HEAD:R/alleleSpecificHic.R
         "      $0=$1\n",
         "      gsub(\"___\",\"\\t\",$1)\n",
         "      print $0 >",par11,"\n",
@@ -198,6 +199,18 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
         "      print $0 >",par01,"\n",
         "      print $0 >",par02,"\n",
         "      print $0 >",par13,"\n",
+=======
+        "      a=gensub(/___/,\"\\t\",\"g\",$1)\n",
+        "      print a >",par11,"\n",
+        "      print a >",par22,"\n",
+        "      print a >",par33,"\n",
+        "      print a >",par00,"\n",
+        "      print a >",par12,"\n",
+        "      print a >",par23,"\n",
+        "      print a >",par01,"\n",
+        "      print a >",par02,"\n",
+        "      print a >",par13,"\n",
+>>>>>>> b73cdf857e30ab43ed4457d84da5c1850033ed4e:R/parseAlleles.R
             # if r1 and r2 are g1
         "    } else if(",pgfield1,"==",tag1," && ",pgfield2,"==",tag1,"){\n",
         "      P11++\n",
@@ -263,11 +276,11 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
         "    if($1~\"@\"){\n",
         "      HL++\n",
         "      $0=$1\n",
-        "      gsub(\"___\",\"\\t\",$1)\n",
-        "      print $0 > ",par1,"\n",
-        "      print $0 > ",par2,"\n",
-        "      print $0 > ",par3,"\n",
-        "      print $0 > ",par0,"\n",
+        "      a=gensub(/___/,\"\\t\",\"g\",$1)\n",
+        "      print a > ",par1,"\n",
+        "      print a > ",par2,"\n",
+        "      print a > ",par3,"\n",
+        "      print a > ",par0,"\n",
         # if read is g1
         "    } else if(",pgfield1,"==",tag1,"){\n",
         "      P1++\n",

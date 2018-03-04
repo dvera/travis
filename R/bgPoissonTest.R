@@ -10,11 +10,11 @@ bgPoissonTest <- function( bedGraph1, bedGraph2=NULL, lower=FALSE, adjustp="fdr"
     if(!is.null(lambda)){cat("bedGraph2 defined, ignoring lambda\n")}
   }
 
-  bg1 <- read_tsv( bedGraph1, col_names=F)
+  bg1 <- as.data.frame(read_tsv( bedGraph1, col_names=F))
   if(addone){ bg1[,4] <- bg1[,4]+1 }
 
   if(paired){
-    bg2 <- read_tsv( bedGraph2, col_names=F)
+    bg2 <- as.data.frame(read_tsv( bedGraph2, col_names=F))
     stopifnot(nrow(bg1)==nrow(bg2))
     if(addone){ bg2[,4] <- bg2[,4]+1 }
     lambdas <- bg2[,4]

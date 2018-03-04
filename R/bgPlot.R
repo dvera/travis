@@ -24,10 +24,12 @@ bgPlot <- function( bgFiles , regions=NA , plotcolors=rainbow(length(bgFiles)), 
 
   for(r in seq_len(numplots)){
     #print(region[r,3])
-    print(paste("region",r,region[r,1],region[r,2]-flank,region[r,3]+flank))
+    left <- region[r,2]-flank
+    if(left<0){left<-0}
+    print(paste("region",r,region[r,1],left,region[r,3]+flank))
     # fix this to handle no returned scores
     cmdString <- paste0(
-      "printf \"%s\\t%s\\t%s\" \"", region[r,1],"\" \"",region[r,2]-flank,"\" \"",region[r,3]+flank,"\" ",
+      "printf \"%s\\t%s\\t%s\" \"", region[r,1],"\" \"",left,"\" \"",region[r,3]+flank,"\" ",
       "| bedtools intersect -u -a ", bgFiles, " -b stdin "
     )
 

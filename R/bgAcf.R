@@ -2,8 +2,8 @@
 bgAcf <- function ( bgs , maxlag=10, threads=getOption("threads",1L) ){
 
   numbgs=length(bgs)
-  bgl <- bgRead(bgs,threads=threads)
-  acfmat = t(as.data.frame( lapply( lapply( bgl, acf, lag.max=maxlag, plot=F), "[[", 1 ) ))
+  bgl <- as.data.frame(bgRead(bgs,threads=threads))
+  acfmat = t(as.data.frame( lapply( mclapply( bgl, acf, lag.max=maxlag, plot=F,mc.cores=threads,mc.preschedule=FALSE), "[[", 1 ) ))
   #a=-1*data.matrix(as.data.frame((lapply(a,diff))))
 
   acfmat=acfmat[,-1,drop=F]
