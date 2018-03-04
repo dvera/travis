@@ -3,7 +3,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
   #TO DO:
   # pipe bowtie2 to parsing
   # vcf to consensus fastq script
-  # output pg tag in final sam files, for PE output
+  # output pg optional user tag in final sam files, for PE output
+  # add PG header line to sam header for this program
 
 
   if(!all(c("AS","XM","XO","XG","NM") %in% fields)){
@@ -69,8 +70,8 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
     if(!is.null(fastqFiles2)){
       paired=TRUE
     }
-    sam1 <- bowtie2(fastqFiles1, index1prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
-    sam2 <- bowtie2(fastqFiles1, index2prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads )
+    sam1 <- bowtie2(fastqFiles1, index1prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
+    sam2 <- bowtie2(fastqFiles1, index2prefix, if(paired){fastqFiles2}, discordant=TRUE, appendIndexToName=TRUE, reorder=TRUE, threads=threads, ... )
   }
 
 
@@ -87,7 +88,7 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
   par01 <- paste0("\"",fname1,"_",i1p,"-unm.sam\"")
   par02 <- paste0("\"",fname1,"_",i2p,"-unm.sam\"")
   par00 <- paste0("\"",fname1,"_unm-unm.sam\"")
-  par33 <- paste0(fname1,"_amb-amb.sam\"")
+  par33 <- paste0("\"",fname1,"_amb-amb.sam\"")
 
 
   minASstring <- paste0("AS:i:",minAS)
@@ -186,16 +187,17 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
         # if the line is a header
         "    if($1~\"@\"){\n",
         "      HL++\n",
-        "      a=gsub(\"___\",\"\\t\",$1)",
-        "      print a >",par11,
-        "      print a >",par22,
-        "      print a >",par33,
-        "      print a >",par00,
-        "      print a >",par12,
-        "      print a >",par23,
-        "      print a >",par01,
-        "      print a >",par02,
-        "      print a >",par13,
+        "      $0=$1\n",
+        "      gsub(\"___\",\"\\t\",$1)\n",
+        "      print $0 >",par11,"\n",
+        "      print $0 >",par22,"\n",
+        "      print $0 >",par33,"\n",
+        "      print $0 >",par00,"\n",
+        "      print $0 >",par12,"\n",
+        "      print $0 >",par23,"\n",
+        "      print $0 >",par01,"\n",
+        "      print $0 >",par02,"\n",
+        "      print $0 >",par13,"\n",
             # if r1 and r2 are g1
         "    } else if(",pgfield1,"==",tag1," && ",pgfield2,"==",tag1,"){\n",
         "      P11++\n",
@@ -212,7 +214,7 @@ alleleSpecificHic <- function( fastqFiles1 , fastqFiles2=NULL , index1prefix, in
         "      print ",r1fields," >",par33,"\n",
         "      print ",r2fields," >",par33,"\n",
             # if r1 and r2 are unmapped
-        "    } else if(",pgfield1,"==",tag0," && ",pgfield2,"==",tag0,"){\n",
+        "    } else if(",pgfield1,"==",tag0," && ",pgfield2,"q==",tag0,"){\n",
         "      P00++\n",
         "      print ",r1fields," >",par00,"\n",
         "      print ",r2fields," >",par00,"\n",
