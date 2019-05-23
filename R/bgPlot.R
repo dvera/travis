@@ -1,4 +1,4 @@
-bgPlot <- function( bgFiles , regions=NA , plotcolors=rainbow(length(bgFiles)), legendnames=basename(removeext(bgFiles)) ,  lines=T , steps=F , dots=F , ylims=NA , threads=getOption("threads",1L) , linetypes=1, linewidths=3, lspan=0, flank=0 , ylabel="score" , xline=0 , maxplots=100, connectWithin=0 ) {
+bgPlot <- function( bgFiles , regions=NA , highlight=NULL, plotcolors=rainbow(length(bgFiles)), legendnames=basename(removeext(bgFiles)) ,  lines=T , steps=F , dots=F , ylims=NA , threads=getOption("threads",1L) , linetypes=1, linewidths=3, lspan=0, flank=0 , ylabel="score" , xline=0 , maxplots=100, connectWithin=0 ) {
 
   options(scipen=9999)
 
@@ -19,6 +19,23 @@ bgPlot <- function( bgFiles , regions=NA , plotcolors=rainbow(length(bgFiles)), 
     #print(region)
   }
 
+  makeTransparent<-function(someColor, alpha=64){
+    newColor<-col2rgb(someColor)
+    apply(newColor, 2, function(curcoldata){
+	    rgb(red=curcoldata[1],
+		green=curcoldata[2],
+		blue=curcoldata[3],
+		alpha=alpha,
+		maxColorValue=255
+	       )})
+  }
+  if(!is.null(highlight)){
+    	  numcolors <- length(highlight)
+	  hicolors <- makeTransparent(names(highlight))
+	  hifiles <- tsvRead(unlist(highlight),threads=threads)
+	  if(is.data.frame(hifiles)){hifiles=list(m=hifiles)}
+  }
+	  
   numplots <- nrow(region)
   if(numplots>maxplots){numplots <- maxplots}
 
@@ -33,8 +50,7 @@ bgPlot <- function( bgFiles , regions=NA , plotcolors=rainbow(length(bgFiles)), 
       "| bedtools intersect -u -a ", bgFiles, " -b stdin "
     )
 
-
-    scores <- cmdRun( cmdString, tsv=TRUE, threads=threads)
+   scores <- cmdRun( cmdString, tsv=TRUE, threads=threads)
 
     #if(nrow(scores))
 
@@ -42,6 +58,17 @@ bgPlot <- function( bgFiles , regions=NA , plotcolors=rainbow(length(bgFiles)), 
     if(is.na(ylims)){ylimits=c( min(unlist(lapply(scores,"[",4))), max(unlist(lapply(scores,"[",4))))} else{ylimits=ylims}
 
     plot(0,0,type='n', xlim=xlims, ylim=ylimits, xlab=paste(region[r,1],"coordinate (bp)") , ylab=ylabel , main=paste0(region[r,1],":",region[r,2],"-",region[r,3]) )
+	cat("numcolors=",numcolors,"\n")
+	  if(!is.null(highlight)){
+	    for(h in 1:numcolors){
+		    hisub <- hifiles[[h]][which(hifiles[[h]][,1]==region[r,1]),]
+		    if(nrow(hisub>0)){
+			    rect(hisub[,2],-1000,hisub[,3],1000,col=hicolors[h],border=NA)
+		    }
+	    }
+	    
+    }
+  
     if(is.numeric(xline)){abline(h=xline)}
     for(i in seq_len(numbgs)){
 
