@@ -59,10 +59,11 @@ bgPlot <- function( bgFiles , regions=NA , highlight=NULL, plotcolors=rainbow(le
 
     plot(0,0,type='n', xlim=xlims, ylim=ylimits, xlab=paste(region[r,1],"coordinate (bp)") , ylab=ylabel , main=paste0(region[r,1],":",region[r,2],"-",region[r,3]) )
 	cat("numcolors=",numcolors,"\n")
+	  
 	  if(!is.null(highlight)){
 	    for(h in 1:numcolors){
 		    hisub <- hifiles[[h]][which(hifiles[[h]][,1]==region[r,1]),]
-		    if(nrow(hisub>0)){
+		    if(nrow(hisub)>0){
 			    rect(hisub[,2],-1000,hisub[,3],1000,col=hicolors[h],border=NA)
 		    }
 	    }
